@@ -111,6 +111,62 @@ The analysis covers a 24-month operational period across approximately 900 ATMs 
 
 - **Availability** is calculated from minute-weighted in-scope uptime and total minutes.
 - **SLA Compliance** is evaluated against the applicable account × SLA tier × month contractual threshold.
-- **Penalty Exposure** separates accrued exposure from realised penalties for closed periods.
+- **Penalty Accrued** separates accrued exposure from realised penalties for closed periods.
 - **MTTR** uses both Median and P90 to capture typical restoration performance and the long tail.
 - **FTFR and Repeat Visit Rate** are analysed together to assess field-service quality.
+
+## Power BI Report
+
+The Power BI report translates the governed analytical outputs into four decision-oriented views:
+
+| Report Page | Focus |
+|---|---|
+| Executive Overview | Overall availability, SLA compliance, penalty exposure, and operational performance |
+| ATM Availability | Availability trends, device performance, and downtime analysis |
+| SLA Compliance & Penalties | Contract compliance, penalty exposure, and account × SLA tier analysis |
+| Incident Operations | Incident volume, restoration performance, MTTR, FTFR, and repeat visits |
+
+The report supports filtering and segmentation across reporting periods, accounts, SLA tiers, regions, vendors, and ATM-level operational dimensions.
+
+
+## Key Insights & Recommendations
+
+### 1. SLA Compliance Gap
+**98.37% Technical Availability vs 90.77% SLA Compliance**
+
+- **Implication:** Fleet availability alone does not capture contractual performance.
+- **Action:** Investigate failing account × SLA tier × month combinations.
+
+### 2. Restoration Drives Financial Exposure
+
+**1.98M EGP Restoration Penalty vs 495K EGP Availability Penalty | Response Penalty: 0 EGP**
+
+- **Implication:** Financial exposure is concentrated in restoration performance.
+- **Action:** Prioritize Restoration SLA breaches and prolonged incidents.
+
+### 3. Field-Service Quality Below Target
+**FTFR: 79.44% vs ≥85% | Repeat Visit Rate: 20.56% vs ≤15%**
+
+- **Implication:** Repeat dispatches indicate a service-quality gap.
+- **Action:** Analyze repeat visits by vendor, region, and incident characteristics.
+
+### 4. Significant MTTR Long Tail
+**Median MTTR: 379 min | P90 MTTR: 1,299 min**
+
+- **Implication:** A smaller group of prolonged incidents creates disproportionate SLA risk.
+- **Action:** Investigate high-duration incidents and recurring restoration patterns.
+
+### 5. Material Vendor Performance Variation
+**FTFR: 91.30%–61.43% | Repeat Visit Rate: 8.70%–38.57%**
+
+- **Implication:** Fleet averages can hide underperforming vendors.
+- **Action:** Establish targeted improvement plans for weak-performing vendors.
+
+### 6. Episodic SLA Deterioration
+**Notable periods: May–June 2025 and February 2026**
+
+- **Implication:** Performance deterioration is concentrated in specific periods rather than continuously declining.
+- **Action:** Drill into account × SLA tier × month during these periods.
+
+> **Note:** Response Penalty = **0 EGP** under the approved Response SLA logic; this does **not** mean Response Time = 0.
+
