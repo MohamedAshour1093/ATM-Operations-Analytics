@@ -37,18 +37,20 @@ The report supports analysis across:
 
 ## Report Screenshots
 
+
+
 ### Executive Overview
 
-![Executive Overview](screenshots/executive_overview.png)
+![Executive Overview](Executive_Overview.png)
 
 ### ATM Availability
 
-![ATM Availability](screenshots/atm_availability.png)
+![ATM Availability](ATM_Availability.png)
 
 ### SLA Compliance & Penalties
 
-![SLA Compliance & Penalties](screenshots/sla_compliance_penalties.png)
+![SLA Compliance & Penalties](SLA_Compliance_Penalties.png)
 
 ### Incident Operations
 
-![Incident Operations](screenshots/incident_operations.png)
+![Incident Operations](Incident_Operations.png)
