@@ -1,198 +1,175 @@
+# ATM Operations Analytics
 
-# ATM Operations Analytics --- Key Insights & Recommendations
+End-to-end SLA, availability, and penalty-exposure analytics for a managed-services ATM operations provider, built on a governed SQL Server warehouse and a Power BI reporting layer.
 
-## Executive Summary
+## Business Context
 
-The analysis identified a clear gap between overall ATM availability and
-contractual SLA performance.
+The provider operates and maintains bank-owned ATM fleets under commercial SLAs with financial penalties for missed contractual thresholds.
 
-Technical Availability was **98.37%**, while SLA Compliance was
-**90.77%**. This shows that strong fleet-wide availability does not
-necessarily translate into meeting contractual SLA requirements.
+Operational data comes from device monitoring, incident ticketing, and field dispatch systems, creating reconciliation challenges that can affect the reliability of monthly SLA and penalty reporting.
 
-Penalty analysis identified **Restoration** as the dominant penalty
-component, while **Response Penalty was 0 EGP** under the approved
-Response SLA logic. Operational analysis also identified opportunities
-in field-service quality, prolonged restoration incidents, and vendor
-performance.
+This project delivers an analytical solution to monitor contracted availability, SLA and penalty exposure, restoration performance, field-service quality, and vendor performance.
 
-------------------------------------------------------------------------
+## Business Objectives
 
-# Key Insights & Recommendations
+- **Monitor ATM availability** and identify performance gaps across accounts and time.
+- **Measure contractual SLA compliance** across accounts, SLA tiers, and reporting months.
+- **Quantify penalty exposure** and identify the main financial drivers.
+- **Assess restoration performance** using Median and P90 MTTR.
+- **Evaluate field-service quality** through FTFR and Repeat Visit Rate.
+- **Identify operational areas requiring targeted improvement** across vendors, regions, and SLA segments.
 
-## 1. SLA Compliance Is Below Technical Availability
+## Executive Snapshot
 
-**Finding**
+| KPI | Result |
+|---|---:|
+| Technical Availability | **98.37%** |
+| SLA Compliance | **90.77%** |
+| Penalty Accrued | **2.48M EGP** |
+| Penalty Realised | **2.36M EGP** |
+| Median MTTR | **379 min** |
+| P90 MTTR | **1,299 min** |
+| First-Time Fix Rate (FTFR) | **79.44%** |
+| Repeat Visit Rate | **20.56%** |
 
-Technical Availability is **98.37%**, while SLA Compliance is
-**90.77%**.
+## Solution Architecture
 
-**Business Impact**
+The solution follows a layered SQL Server warehouse architecture that separates source ingestion, data-quality processing, business integration, and analytical consumption.
 
-Strong fleet-wide availability does not necessarily mean that
-contractual SLA requirements are being met. SLA compliance is evaluated
-against the applicable account, SLA tier, and month.
+### Data Flow
 
-**Recommendation**
+`Source Data → RAW → STG → CORE → MART → Power BI`
 
-Investigate the account × SLA tier × month combinations responsible for
-SLA failures rather than relying only on fleet-wide availability.
+| Layer | Role |
+|---|---|
+| RAW | Source-faithful ingestion and traceability |
+| STG | Typed, standardised, and validated data |
+| CORE | Integrated dimensions and operational facts; KPI calculation source of truth |
+| MART | Reporting-ready analytical outputs |
+| Power BI | KPI reporting, trends, segmentation, and operational analysis |
 
-**Suggested Owner**
+## Technical Approach
 
-ATM Operations / SLA & Contract Management
+The analysis was built as a controlled SQL Server workflow, with business rules and KPI calculations implemented before Power BI consumption.
 
-**Success KPI**
+### 1. Source Ingestion
 
-SLA Compliance
+Source extracts are landed in the RAW layer to preserve source-faithful data and support traceability and reloadability.
 
-------------------------------------------------------------------------
+### 2. Data Quality & Standardisation
 
-## 2. Restoration Is the Main Penalty Driver
+The STG layer converts raw values into analytical data types, standardises source fields, validates business keys and timestamps, and isolates structural rejects for review.
 
-**Finding**
+### 3. Business Integration
 
-Restoration is the dominant penalty component.
+The CORE layer integrates telemetry, incidents, service visits, device attributes, and SLA contracts into conformed dimensions and operational facts. Surrogate keys and relationships are resolved here.
 
--   Restoration Penalty: approximately **1.98M EGP**
--   Availability Penalty: approximately **495K EGP**
--   Response Penalty: **0 EGP**
+### 4. KPI & Business Rule Processing
 
-**Business Impact**
+Contractual SLA thresholds, in-scope availability rules, penalty logic, restoration measures, and field-service quality measures are applied before analytical consumption.
 
-The main financial exposure is associated with restoration performance
-rather than acknowledgement response.
+### 5. Analytical Mart
 
-**Recommendation**
+The MART layer produces reporting-ready facts and views at defined analytical grains, including device-month availability and account × SLA tier × month SLA/penalty analysis.
 
-Prioritize reduction of incidents that breach the Restoration SLA,
-particularly those contributing to prolonged restoration times.
+### 6. Validation & Reconciliation
 
-**Suggested Owner**
+The pipeline includes row-count checks, grain uniqueness checks, minute reconciliation, KPI smoke tests, and controls to verify that percentage metrics are calculated from the appropriate underlying measures.
 
-Field Service / Vendor Management
+### 7. Power BI Consumption
 
-**Success KPIs**
+Power BI consumes the governed analytical outputs to provide executive KPI reporting, trends, account and tier analysis, and operational performance views.
 
-Restoration Penalty, P90 MTTR, Median MTTR
+## Data Scale & KPI Framework
 
-> **Response Penalty = 0 EGP** means that no financial penalty was
-> generated by the Response SLA component under the approved Response
-> SLA business logic. It does not mean Response Time = 0.
+The analysis covers a 24-month operational period across approximately 900 ATMs and seven banking accounts.
 
-------------------------------------------------------------------------
+| Area | Scale / KPI |
+|---|---:|
+| ATMs | ~900 |
+| Banking accounts | 7 |
+| SLA contract terms | 84 |
+| Incidents | 28,107 |
+| Service visits | 19,100 |
+| Telemetry events | 2,786,490 |
+| Reporting period | 24 months |
 
-## 3. Field-Service Quality Is Below Governance Targets
+### Core KPIs
 
-**Finding**
+| KPI | Result |
+|---|---:|
+| Technical (In-Scope) Availability | **98.37%** |
+| SLA Compliance | **90.77%** |
+| Penalty Accrued | **2.48M EGP** |
+| Penalty Realised | **2.36M EGP** |
+| Median MTTR | **379 min** |
+| P90 MTTR | **1,299 min** |
+| First-Time Fix Rate (FTFR) | **79.44%** |
+| Repeat Visit Rate | **20.56%** |
 
--   FTFR: **79.44%** vs target **≥85%**
--   Repeat Visit Rate: **20.56%** vs target **≤15%**
+### KPI Design
 
-**Business Impact**
+- **Availability** is calculated from minute-weighted in-scope uptime and total minutes.
+- **SLA Compliance** is evaluated against the applicable account × SLA tier × month contractual threshold.
+- **Penalty Accrued** separates accrued exposure from realised penalties for closed periods.
+- **MTTR** uses both Median and P90 to capture typical restoration performance and the long tail.
+- **FTFR and Repeat Visit Rate** are analysed together to assess field-service quality.
 
-The results indicate a field-service quality gap and an opportunity to
-reduce repeat dispatches.
+## Power BI Report
 
-**Recommendation**
+The Power BI report translates the governed analytical outputs into four decision-oriented views:
 
-Investigate repeat-visit patterns by vendor, region, and incident
-characteristics and establish corrective actions for underperforming
-segments.
+| Report Page | Focus |
+|---|---|
+| Executive Overview | Overall availability, SLA compliance, penalty exposure, and operational performance |
+| ATM Availability | Availability trends, device performance, and downtime analysis |
+| SLA Compliance & Penalties | Contract compliance, penalty exposure, and account × SLA tier analysis |
+| Incident Operations | Incident volume, restoration performance, MTTR, FTFR, and repeat visits |
 
-**Suggested Owner**
+The report supports filtering and segmentation across reporting periods, accounts, SLA tiers, regions, vendors, and ATM-level operational dimensions.
 
-Field Service / Vendor Management
+## Key Insights & Recommendations
 
-**Success KPIs**
+### 1. SLA Compliance Gap
 
-FTFR, Repeat Visit Rate
+**98.37% Technical Availability vs 90.77% SLA Compliance**
 
-------------------------------------------------------------------------
+- **Implication:** Fleet availability alone does not capture contractual performance.
+- **Action:** Investigate failing account × SLA tier × month combinations.
 
-## 4. MTTR Has a Significant Long Tail
+### 2. Restoration Drives Financial Exposure
 
-**Finding**
+**1.98M EGP Restoration Penalty vs 495K EGP Availability Penalty | Response Penalty: 0 EGP**
 
--   Median MTTR: **379 minutes**
--   P90 MTTR: **1,299 minutes**
--   P90 is approximately **3.4× the median**
+- **Implication:** Financial exposure is concentrated in restoration performance.
+- **Action:** Prioritize Restoration SLA breaches and prolonged incidents.
 
-**Business Impact**
+### 3. Field-Service Quality Below Target
 
-A smaller population of long-duration incidents creates disproportionate
-restoration and SLA risk.
+**FTFR: 79.44% vs ≥85% | Repeat Visit Rate: 20.56% vs ≤15%**
 
-**Recommendation**
+- **Implication:** Repeat dispatches indicate a service-quality gap.
+- **Action:** Analyze repeat visits by vendor, region, and incident characteristics.
 
-Establish a focused review of high-duration incidents by priority,
-region, vendor, and ATM to identify recurring patterns behind prolonged
-restoration.
+### 4. Significant MTTR Long Tail
 
-**Suggested Owner**
+**Median MTTR: 379 min | P90 MTTR: 1,299 min**
 
-ATM Operations / Field Service / BI
+- **Implication:** A smaller group of prolonged incidents creates disproportionate SLA risk.
+- **Action:** Investigate high-duration incidents and recurring restoration patterns.
 
-**Success KPI**
+### 5. Material Vendor Performance Variation
 
-P90 MTTR
+**FTFR: 91.30%–61.43% | Repeat Visit Rate: 8.70%–38.57%**
 
-------------------------------------------------------------------------
+- **Implication:** Fleet averages can hide underperforming vendors.
+- **Action:** Establish targeted improvement plans for weak-performing vendors.
 
-## 5. Vendor Performance Varies Significantly
+### 6. Episodic SLA Deterioration
 
-**Finding**
+**Notable periods: May–June 2025 and February 2026**
 
-Vendor FTFR varies materially, ranging from **91.30% to approximately
-61.43%**, with a corresponding Repeat Visit Rate range of **8.70% to
-approximately 38.57%**.
+- **Implication:** Performance deterioration is concentrated in specific periods rather than continuously declining.
+- **Action:** Drill into account × SLA tier × month during these periods.
 
-**Business Impact**
-
-Fleet-level averages can hide material differences between vendors.
-
-**Recommendation**
-
-Review vendors materially below the fleet benchmark and establish
-targeted improvement plans based on FTFR, repeat visits, and restoration
-performance.
-
-**Suggested Owner**
-
-Vendor Management
-
-**Success KPIs**
-
-FTFR, Repeat Visit Rate, MTTR
-
-------------------------------------------------------------------------
-
-## 6. SLA Performance Shows Episodic Deterioration
-
-**Finding**
-
-SLA Compliance shows material deterioration periods around:
-
--   **May--June 2025**
--   **February 2026**
-
-followed by recovery.
-
-**Business Impact**
-
-The pattern does not indicate a simple continuous fleet-wide decline and
-provides specific periods for targeted investigation.
-
-**Recommendation**
-
-Perform account × SLA tier × month analysis for the identified
-deterioration periods to determine the specific drivers before
-establishing root-cause conclusions.
-
-**Suggested Owner**
-
-ATM Operations / SLA Management / BI
-
-**Success KPI**
-
-SLA Compliance
+> **Note:** Response Penalty = **0 EGP** under the approved Response SLA logic; this does **not** mean Response Time = 0.
